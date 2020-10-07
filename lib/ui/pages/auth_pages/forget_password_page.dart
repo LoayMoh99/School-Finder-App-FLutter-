@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:school_finder_app/ui/widgets/custom_round_button.dart';
-import 'package:school_finder_app/ui/widgets/textfield_widget.dart';
+import 'package:school_finder_app/ui/helper_widgets/custom_round_button.dart';
+import 'package:school_finder_app/ui/helper_widgets/textfield_widget.dart';
 
 class ForgetPasswordPage extends StatefulWidget {
   @override
@@ -64,6 +64,7 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
                               controller: emailController,
                               hintText: 'Email',
                               obscureText: false,
+                              autoFocus: true,
                               prefixIconData: Icons.mail_outline,
                             ),
                             SizedBox(

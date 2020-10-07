@@ -1,21 +1,25 @@
 import 'package:flutter/material.dart';
 
 class TextFieldWidget extends StatelessWidget {
-  final String hintText;
+  final String hintText, labelText;
   final IconData prefixIconData;
   final IconData suffixIconData;
   final bool obscureText;
   final Function suffixOnTap;
   final controller;
+  final bool autoFocus;
 
-  TextFieldWidget({
+  const TextFieldWidget({
+    Key key,
     this.hintText,
+    this.labelText,
     this.prefixIconData,
     this.suffixIconData,
     this.obscureText,
     this.suffixOnTap,
     this.controller,
-  });
+    this.autoFocus = false,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +43,8 @@ class TextFieldWidget extends StatelessWidget {
           borderRadius: BorderRadius.circular(25),
           borderSide: BorderSide(color: Colors.teal),
         ),
-        labelText: hintText,
+        labelText: (labelText == null) ? hintText : labelText,
+        hintText: (labelText == null) ? null : hintText,
         prefixIcon: Icon(
           prefixIconData,
           size: 20,
@@ -54,6 +59,7 @@ class TextFieldWidget extends StatelessWidget {
           ),
         ),
       ),
+      autofocus: autoFocus,
     );
   }
 }

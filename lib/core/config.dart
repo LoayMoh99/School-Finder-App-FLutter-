@@ -18,8 +18,6 @@ String getAppKey() {
   return finalKey;
 }
 
-final String publicFolder = 'C:/Users/Otrebor Azilab/Desktop/public/';
-
 Future<String> getAccessToken() async {
   String accessToken;
   await SharedPreferences.getInstance().then((sharedPreferences) {

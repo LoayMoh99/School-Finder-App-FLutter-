@@ -1,47 +1,52 @@
 import 'package:flutter/material.dart';
-import 'package:school_finder_app/model/school_data.dart';
-import 'package:school_finder_app/viewmodels/schools_view_model.dart';
+import 'package:provider/provider.dart';
+import 'package:school_finder_app/viewmodels/ads_view_model.dart';
+import 'package:school_finder_app/viewmodels/change_ntifier_helper.dart';
 
-class SchoolsView extends StatefulWidget {
+class AdsView extends StatefulWidget {
   final Size size;
 
-  const SchoolsView({this.size});
+  const AdsView({this.size});
 
   @override
-  _SchoolsViewState createState() => _SchoolsViewState();
+  _AdsViewState createState() => _AdsViewState();
 }
 
-class _SchoolsViewState extends State<SchoolsView> {
-  SchoolsViewModel _schoolsViewModel = new SchoolsViewModel();
-  List<School> schools;
+class _AdsViewState extends State<AdsView> {
   @override
   void initState() {
     super.initState();
-    _schoolsViewModel.getSchools().then((schools) {
-      if (schools != null) {
-        setState(() {
-          this.schools = schools;
-        });
-      }
-    });
+    Provider.of<AdsViewModel>(context, listen: false).getAds();
   }
 
   @override
   Widget build(BuildContext context) {
-    bool showSchool = (schools != null && schools.isNotEmpty);
-    return Expanded(
-      child: Container(
-        width: this.widget.size.width,
-        child: (schools == null)
-            ? Center(child: CircularProgressIndicator())
-            : ListView.builder(
-                itemCount: showSchool ? schools.length : 1,
+    return Container(
+      width: this.widget.size.width,
+      height: this.widget.size.height * 0.25,
+      child: Consumer<AdsViewModel>(
+        builder: (_, notifier, __) {
+          if (notifier.state == NotifierState.initial) {
+            return Center(
+              child: Text('No Ads'),
+            );
+          } else if (notifier.state == NotifierState.loading) {
+            return Center(child: CircularProgressIndicator());
+          } else {
+            return notifier.ads.fold((failure) {
+              return Center(
+                child: Text(failure.message()),
+              );
+            }, (ads) {
+              bool showAd = (ads != null && ads.isNotEmpty);
+              return ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: showAd ? ads.length : 1,
                 itemBuilder: (context, index) {
                   return Container(
-                    margin: EdgeInsets.all(8),
+                    margin: EdgeInsets.fromLTRB(0, 8, 8, 8),
                     width: this.widget.size.width,
-                    height: this.widget.size.height * 0.25,
-                    child: showSchool
+                    child: showAd
                         ? Container(
                             margin: EdgeInsets.fromLTRB(8, 0, 8, 0),
                             child: Stack(
@@ -50,8 +55,8 @@ class _SchoolsViewState extends State<SchoolsView> {
                                 FittedBox(
                                   fit: BoxFit.fill,
                                   child: Image.asset(
-                                      schools[index].gallery[0] != null
-                                          ? '${schools[index].gallery[0]}'
+                                      ads[index].adImageUrl != null
+                                          ? '${ads[index].adImageUrl}'
                                           : 'imgs/placeholder.jpg'),
                                 ),
                                 Container(
@@ -71,7 +76,7 @@ class _SchoolsViewState extends State<SchoolsView> {
                                   child: Align(
                                     alignment: Alignment.bottomLeft,
                                     child: Text(
-                                      '${schools[index].name}',
+                                      '${ads[index].adContent}',
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 20,
@@ -84,11 +89,14 @@ class _SchoolsViewState extends State<SchoolsView> {
                             ),
                           )
                         : Center(
-                            child: Text('No Schools'),
+                            child: Text('No Ads'),
                           ),
                   );
                 },
-              ),
+              );
+            });
+          }
+        },
       ),
     );
   }

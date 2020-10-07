@@ -15,7 +15,11 @@ dependencies:
   http: ^0.12.2
   shared_preferences: ^0.5.10
   page_transition: "^1.1.6"
-  image_picker: 
+  image_picker: null
+  provider: ^4.3.2+2
+  bottom_navy_bar: ^5.5.0
+  dropdownfield: ^1.0.3
+  dartz: ^0.9.2
 
 dev_dependencies:
   flutter_test:

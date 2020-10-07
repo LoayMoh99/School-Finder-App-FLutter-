@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:school_finder_app/core/error.dart';
+import 'package:school_finder_app/core/failure.dart';
 import 'package:school_finder_app/model/school_data.dart';
 import 'package:school_finder_app/repositories/school/school_repository.dart';
 
@@ -15,8 +15,7 @@ class ProdSchoolRepository implements SchoolRepository {
     final List responseBody = json.decode(response.body);
     final statusCode = response.statusCode;
     if (statusCode != 200 || responseBody == null) {
-      throw new FetchDataException(
-          "An error ocurred : [Status Code : $statusCode]");
+      throw new Failure("An error ocurred : [Status Code : $statusCode]");
     }
 
     return responseBody.map((c) => new School.fromJson(c)).toList();

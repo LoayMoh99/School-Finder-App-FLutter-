@@ -1,3 +1,10 @@
+import 'package:school_finder_app/repositories/ad/ad_mock_repo.dart';
+import 'package:school_finder_app/repositories/ad/ad_prod_repo.dart';
+import 'package:school_finder_app/repositories/ad/ad_repository.dart';
+import 'package:school_finder_app/repositories/user/user_mock_repo.dart';
+import 'package:school_finder_app/repositories/user/user_prod_repo.dart';
+import 'package:school_finder_app/repositories/user/user_repository.dart';
+
 import 'repositories/school/school_mock_repo.dart';
 import 'repositories/school/school_prod_repo.dart';
 import 'repositories/school/school_repository.dart';
@@ -31,6 +38,24 @@ class Injector {
         return new MockSchoolRepository();
       default:
         return new ProdSchoolRepository();
+    }
+  }
+
+  AdRepository get adRepository {
+    switch (_flavor) {
+      case Flavor.MOCK:
+        return new MockAdRepository();
+      default:
+        return new ProdAdRepository();
+    }
+  }
+
+  UserRepository get userRepository {
+    switch (_flavor) {
+      case Flavor.MOCK:
+        return new MockUserRepository();
+      default:
+        return new ProdUserRepository();
     }
   }
 }

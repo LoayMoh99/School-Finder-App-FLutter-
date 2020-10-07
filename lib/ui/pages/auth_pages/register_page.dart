@@ -3,9 +3,10 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:school_finder_app/ui/pages/home_page.dart';
-import 'package:school_finder_app/ui/widgets/custom_round_button.dart';
-import 'package:school_finder_app/ui/widgets/textfield_widget.dart';
+import 'package:school_finder_app/ui/pages/home_pages/home_page.dart';
+import 'package:school_finder_app/ui/helper_widgets/custom_round_button.dart';
+import 'package:school_finder_app/ui/helper_widgets/role_radio_btns.dart';
+import 'package:school_finder_app/ui/helper_widgets/textfield_widget.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -127,40 +128,57 @@ class _RegisterPageState extends State<RegisterPage> {
                       child: Container(
                         margin: EdgeInsets.symmetric(
                           horizontal: size.width * 0.1,
+                          vertical: size.height * 0.01,
                         ),
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(35),
+                          borderRadius: BorderRadius.circular(40),
                           color: Colors.white,
                         ),
                         padding: EdgeInsets.symmetric(
-                          vertical: size.width * 0.05,
+                          vertical: size.height * 0.02,
                           horizontal: size.width * 0.1,
                         ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: <Widget>[
-                            GestureDetector(
+                            InkWell(
                               onTap: () => selectAvatar(context),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(
-                                    size.height * 0.05,
-                                  ),
-                                  border: Border.all(color: Colors.teal),
-                                ),
-                                width: size.height * 0.1,
-                                height: size.height * 0.1,
-                                child: (_image == null)
-                                    ? Icon(Icons.person)
-                                    : ClipRRect(
-                                        borderRadius: BorderRadius.circular(
-                                          size.height * 0.05,
-                                        ),
-                                        child: FittedBox(
-                                          fit: BoxFit.fill,
-                                          child: Image.file(_image),
-                                        ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(
+                                        size.height * 0.05,
                                       ),
+                                      border: Border.all(color: Colors.teal),
+                                    ),
+                                    width: size.height * 0.1,
+                                    height: size.height * 0.1,
+                                    child: (_image == null)
+                                        ? Icon(Icons.person)
+                                        : ClipRRect(
+                                            borderRadius: BorderRadius.circular(
+                                              size.height * 0.05,
+                                            ),
+                                            child: FittedBox(
+                                              fit: BoxFit.fill,
+                                              child: Image.file(_image),
+                                            ),
+                                          ),
+                                  ),
+                                  Container(
+                                    height: size.height * 0.1,
+                                    width: size.width * 0.01,
+                                    child: Align(
+                                      alignment: Alignment.bottomCenter,
+                                      child: Icon(
+                                        Icons.add_a_photo,
+                                        size: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                             SizedBox(
@@ -220,30 +238,30 @@ class _RegisterPageState extends State<RegisterPage> {
                             ),
                             TextFieldWidget(
                               controller: emailController,
-                              hintText: 'Phone No.',
+                              hintText: '+201xxxxxxxxx ',
+                              labelText: 'Phone No.',
                               obscureText: false,
-                              prefixIconData: Icons.person,
+                              prefixIconData: Icons.phone,
                             ),
                             SizedBox(
                               height: size.height * 0.01,
                             ),
                             TextFieldWidget(
                               controller: emailController,
-                              hintText: 'Location',
+                              hintText: 'Street - City ',
+                              labelText: 'Location',
                               obscureText: false,
-                              prefixIconData: Icons.mail,
+                              prefixIconData: Icons.location_on,
                             ),
                             SizedBox(
                               height: size.height * 0.01,
                             ),
-                            TextFieldWidget(
-                              controller: emailController,
-                              hintText: 'Role',
-                              obscureText: false,
-                              prefixIconData: Icons.mail,
+                            Padding(
+                              padding: EdgeInsets.only(left: 8.0),
+                              child: RoleRadioButtons(),
                             ),
                             SizedBox(
-                              height: size.height * 0.025,
+                              height: size.height * 0.015,
                             ),
                             CustomRoundButton(
                               size: size,

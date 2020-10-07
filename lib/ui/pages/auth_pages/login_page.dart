@@ -2,13 +2,16 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:school_finder_app/core/config.dart';
 import 'package:school_finder_app/ui/pages/auth_pages/forget_password_page.dart';
 import 'package:school_finder_app/ui/pages/auth_pages/register_page.dart';
-import 'package:school_finder_app/ui/pages/home_page.dart';
-import 'package:school_finder_app/ui/widgets/custom_round_button.dart';
-import 'package:school_finder_app/ui/widgets/textfield_widget.dart';
+import 'package:school_finder_app/ui/pages/home_pages/home_page.dart';
+import 'package:school_finder_app/ui/helper_widgets/custom_round_button.dart';
+import 'package:school_finder_app/ui/helper_widgets/textfield_widget.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../helper_widgets/error_dialog.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -95,8 +98,12 @@ class _LoginPageState extends State<LoginPage> {
       body: SafeArea(
         child: isLoading
             ? Container(
+                width: size.width,
+                height: size.height,
                 child: Center(
-                  child: CircularProgressIndicator(),
+                  child: CircularProgressIndicator(
+                    backgroundColor: Colors.white,
+                  ),
                 ),
               )
             : Stack(
@@ -152,6 +159,7 @@ class _LoginPageState extends State<LoginPage> {
                             hintText: 'Name / Email',
                             obscureText: false,
                             prefixIconData: Icons.person,
+                            autoFocus: false,
                           ),
                           SizedBox(
                             height: size.height * 0.02,
@@ -166,6 +174,7 @@ class _LoginPageState extends State<LoginPage> {
                                 isVisible = !isVisible;
                               });
                             },
+                            autoFocus: false,
                             suffixIconData: isVisible
                                 ? Icons.visibility
                                 : Icons.visibility_off,
@@ -206,7 +215,7 @@ class _LoginPageState extends State<LoginPage> {
                             size: size,
                             text: 'Login',
                             onPress: () {
-                              navigateHomePage();
+                              logIn();
                             }, //logIn
                           ),
                           SizedBox(
@@ -214,6 +223,9 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           GestureDetector(
                             onTap: () {
+                              FocusScope.of(context).unfocus();
+                              emailController.clear();
+                              passwordController.clear();
                               Navigator.push(
                                 context,
                                 PageTransition(
@@ -279,32 +291,43 @@ class _LoginPageState extends State<LoginPage> {
     String name = emailController.text.trim();
     String password = passwordController.text;
     if (name.isEmpty || password.isEmpty) {
-      print('error');
-    }
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    final Map data = {
-      'name': name,
-      'password': password,
-    };
-    var response =
-        await http.post("http://10.0.2.2:8000/api/login", body: data);
-    if (response.statusCode == 200) {
-      var jsonResponse = json.decode(response.body);
-      if (jsonResponse != null) {
-        setState(() {
-          isLoading = false;
-        });
-        sharedPreferences.setString(
-            "access_token", jsonResponse['access_token']);
-        Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (BuildContext context) => HomePage()),
-            (Route<dynamic> route) => false);
-      }
-    } else {
       setState(() {
         isLoading = false;
       });
-      print(response.body);
+      dialogError(context, "Name and Password can't be Empty!!");
+    } else {
+      SharedPreferences sharedPreferences =
+          await SharedPreferences.getInstance();
+      final data = {
+        'name': name,
+        'password': password,
+      };
+      final headers = {
+        'APP_KEY': getAppKey(),
+      };
+      var response = await http.post(
+        "http://10.0.2.2:8000/api/login",
+        body: data,
+        headers: headers,
+      );
+      var jsonResponse = json.decode(response.body);
+      if (response.statusCode == 200) {
+        if (jsonResponse != null) {
+          setState(() {
+            isLoading = false;
+          });
+          sharedPreferences.setString(
+              "access_token", jsonResponse['access_token']);
+          navigateHomePage();
+        }
+      } else {
+        if (jsonResponse != null) {
+          setState(() {
+            isLoading = false;
+          });
+          dialogError(context, jsonResponse['message']);
+        }
+      }
     }
   }
 }
