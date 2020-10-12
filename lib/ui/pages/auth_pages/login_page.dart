@@ -1,17 +1,18 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:school_finder_app/core/config.dart';
+import 'package:school_finder_app/ui/helper_widgets/logo_widget.dart';
 import 'package:school_finder_app/ui/pages/auth_pages/forget_password_page.dart';
 import 'package:school_finder_app/ui/pages/auth_pages/register_page.dart';
-import 'package:school_finder_app/ui/pages/home_pages/home_page.dart';
 import 'package:school_finder_app/ui/helper_widgets/custom_round_button.dart';
 import 'package:school_finder_app/ui/helper_widgets/textfield_widget.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../helper_widgets/error_dialog.dart';
+import '../../helper_widgets/custom_dialog.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -24,19 +25,6 @@ class _LoginPageState extends State<LoginPage> {
 
   bool isLoading;
   bool isVisible;
-
-  navigateHomePage() {
-    Navigator.push(
-      context,
-      PageTransition(
-        type: PageTransitionType.scale,
-        alignment: Alignment.bottomCenter,
-        child: HomePage(),
-        inheritTheme: true,
-        ctx: context,
-      ),
-    );
-  }
 
   dialogGuest() {
     return showDialog(
@@ -60,7 +48,7 @@ class _LoginPageState extends State<LoginPage> {
               color: Theme.of(context).primaryColor,
               onPressed: () {
                 Navigator.pop(context);
-                navigateHomePage();
+                navigateHomePage(context);
               },
               child: Text('Fine'),
             ),
@@ -91,6 +79,12 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    ScreenUtil.init(context);
+  }
+
+  @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Scaffold(
@@ -108,173 +102,162 @@ class _LoginPageState extends State<LoginPage> {
               )
             : Stack(
                 children: <Widget>[
-                  Container(
-                    alignment: Alignment.center,
-                    margin: EdgeInsets.all(size.width * 0.1),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(35),
-                      color: Colors.white,
-                    ),
-                    padding: EdgeInsets.symmetric(
-                      vertical: size.width * 0.075,
-                      horizontal: size.width * 0.1,
-                    ),
+                  Center(
                     child: SingleChildScrollView(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: <Widget>[
-                          Text(
-                            'School Finder',
-                            style: TextStyle(
-                              color: Theme.of(context).primaryColor,
-                              fontSize: 36,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1.5,
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                              vertical: size.height * 0.04,
-                            ),
-                            child: Column(
-                              children: <Widget>[
-                                Container(
-                                  width: 100,
-                                  height: 100,
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(50),
-                                    child: FittedBox(
-                                      fit: BoxFit.fill,
-                                      child: Center(
-                                        child: Text(' LOGO '),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          TextFieldWidget(
-                            controller: emailController,
-                            hintText: 'Name / Email',
-                            obscureText: false,
-                            prefixIconData: Icons.person,
-                            autoFocus: false,
-                          ),
-                          SizedBox(
-                            height: size.height * 0.02,
-                          ),
-                          TextFieldWidget(
-                            controller: passwordController,
-                            hintText: 'Password',
-                            prefixIconData: Icons.lock,
-                            obscureText: isVisible ? false : true,
-                            suffixOnTap: () {
-                              setState(() {
-                                isVisible = !isVisible;
-                              });
-                            },
-                            autoFocus: false,
-                            suffixIconData: isVisible
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                          ),
-                          SizedBox(
-                            height: size.height * 0.03,
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                PageTransition(
-                                  type: PageTransitionType.rotate,
-                                  duration: Duration(milliseconds: 400),
-                                  child: ForgetPasswordPage(),
-                                  inheritTheme: true,
-                                  ctx: context,
-                                ),
-                              );
-                            }, //go to forgetpassword page
-                            child: Align(
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                'Forget Password?',
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 1.0,
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            height: size.height * 0.02,
-                          ),
-                          CustomRoundButton(
-                            size: size,
-                            text: 'Login',
-                            onPress: () {
-                              logIn();
-                            }, //logIn
-                          ),
-                          SizedBox(
-                            height: size.height * 0.025,
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              FocusScope.of(context).unfocus();
-                              emailController.clear();
-                              passwordController.clear();
-                              Navigator.push(
-                                context,
-                                PageTransition(
-                                  type: PageTransitionType.scale,
-                                  alignment: Alignment.bottomCenter,
-                                  child: RegisterPage(),
-                                  inheritTheme: true,
-                                  ctx: context,
-                                ),
-                              );
-                            }, //go to registerPage
-                            child: Text(
-                              'Register',
+                      child: Container(
+                        margin: EdgeInsets.all(size.width * 0.075),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(35),
+                          color: Colors.white,
+                        ),
+                        padding: EdgeInsets.symmetric(
+                          vertical: size.width * 0.075,
+                          horizontal: size.width * 0.06,
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: <Widget>[
+                            Text(
+                              'Schools Finder',
                               style: TextStyle(
                                 color: Theme.of(context).primaryColor,
-                                fontSize: 18,
+                                fontSize: ScreenUtil().setSp(70),
                                 fontWeight: FontWeight.bold,
-                                letterSpacing: 1.0,
+                                letterSpacing: 1.5,
                               ),
                             ),
-                          ),
-                          SizedBox(
-                            height: size.height * 0.025,
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              dialogGuest();
-                            },
-                            child: Container(
-                              margin: EdgeInsets.symmetric(vertical: 4),
-                              padding: EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: Theme.of(context).primaryColor,
-                                ),
-                                borderRadius: BorderRadius.circular(10),
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                vertical: size.height * 0.03,
                               ),
+                              child: Column(
+                                children: <Widget>[
+                                  LogoWidget(),
+                                ],
+                              ),
+                            ),
+                            TextFieldWidget(
+                              controller: emailController,
+                              hintText: 'Name / Email',
+                              obscureText: false,
+                              prefixIconData: Icons.person,
+                              autoFocus: false,
+                            ),
+                            SizedBox(
+                              height: size.height * 0.02,
+                            ),
+                            TextFieldWidget(
+                              controller: passwordController,
+                              hintText: 'Password',
+                              prefixIconData: Icons.lock,
+                              obscureText: isVisible ? false : true,
+                              suffixOnTap: () {
+                                setState(() {
+                                  isVisible = !isVisible;
+                                });
+                              },
+                              autoFocus: false,
+                              suffixIconData: isVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                            ),
+                            SizedBox(
+                              height: size.height * 0.03,
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  PageTransition(
+                                    type: PageTransitionType.rotate,
+                                    duration: Duration(milliseconds: 400),
+                                    child: ForgetPasswordPage(),
+                                    inheritTheme: true,
+                                    ctx: context,
+                                  ),
+                                );
+                              }, //go to forgetpassword page
+                              child: Align(
+                                alignment: Alignment.centerRight,
+                                child: Text(
+                                  'Forget Password?',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1.0,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: size.height * 0.02,
+                            ),
+                            CustomRoundButton(
+                              size: size,
+                              text: 'Login',
+                              onPress: () {
+                                logIn();
+                              }, //logIn
+                            ),
+                            SizedBox(
+                              height: size.height * 0.025,
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                FocusScope.of(context).unfocus();
+                                emailController.clear();
+                                passwordController.clear();
+                                Navigator.push(
+                                  context,
+                                  PageTransition(
+                                    type: PageTransitionType.scale,
+                                    alignment: Alignment.bottomCenter,
+                                    child: RegisterPage(),
+                                    inheritTheme: true,
+                                    ctx: context,
+                                  ),
+                                );
+                              }, //go to registerPage
                               child: Text(
-                                'Login as Guest',
+                                'Register',
                                 style: TextStyle(
                                   color: Theme.of(context).primaryColor,
-                                  fontSize: 15,
+                                  fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                   letterSpacing: 1.0,
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                            SizedBox(
+                              height: size.height * 0.025,
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                dialogGuest();
+                              },
+                              child: Container(
+                                margin: EdgeInsets.symmetric(vertical: 4),
+                                padding: EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: Theme.of(context).primaryColor,
+                                  ),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Text(
+                                  'Login as Guest',
+                                  style: TextStyle(
+                                    color: Theme.of(context).primaryColor,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1.0,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -294,7 +277,11 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         isLoading = false;
       });
-      dialogError(context, "Name and Password can't be Empty!!");
+      customDialog(
+          'Error Occured', context, "Name/Email and Password can't be Empty!!",
+          () {
+        Navigator.pop(context);
+      });
     } else {
       SharedPreferences sharedPreferences =
           await SharedPreferences.getInstance();
@@ -305,28 +292,49 @@ class _LoginPageState extends State<LoginPage> {
       final headers = {
         'APP_KEY': getAppKey(),
       };
-      var response = await http.post(
-        "http://10.0.2.2:8000/api/login",
-        body: data,
-        headers: headers,
-      );
-      var jsonResponse = json.decode(response.body);
-      if (response.statusCode == 200) {
-        if (jsonResponse != null) {
-          setState(() {
-            isLoading = false;
-          });
-          sharedPreferences.setString(
-              "access_token", jsonResponse['access_token']);
-          navigateHomePage();
+      var response;
+      var jsonResponse;
+      try {
+        response = await http.post(
+          "$domain/api/login",
+          body: data,
+          headers: headers,
+        );
+        jsonResponse = json.decode(response.body);
+        if (response.statusCode == 200) {
+          if (jsonResponse != null) {
+            setState(() {
+              isLoading = false;
+            });
+            sharedPreferences.setString(
+                "access_token", jsonResponse['access_token']);
+            navigateHomePage(context);
+          }
+        } else {
+          if (jsonResponse != null) {
+            setState(() {
+              isLoading = false;
+            });
+            customDialog('Error Occured', context,
+                jsonResponse['message'] ?? 'Unexpected Error', () {
+              Navigator.pop(context);
+            });
+          }
         }
-      } else {
-        if (jsonResponse != null) {
-          setState(() {
-            isLoading = false;
-          });
-          dialogError(context, jsonResponse['message']);
-        }
+      } on FormatException {
+        setState(() {
+          isLoading = false;
+        });
+        customDialog('Error Occured', context, 'Bad Format 👎 ', () {
+          Navigator.pop(context);
+        });
+      } catch (SocketException) {
+        setState(() {
+          isLoading = false;
+        });
+        customDialog('Error Occured', context, 'Server Failed 😲 ', () {
+          Navigator.pop(context);
+        });
       }
     }
   }

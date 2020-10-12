@@ -5,6 +5,9 @@ import 'package:school_finder_app/ui/helper_widgets/textfield_widget.dart';
 import 'package:school_finder_app/viewmodels/user_view_model.dart';
 
 class AddSchoolSuggestionPage extends StatefulWidget {
+  final accessToken;
+
+  const AddSchoolSuggestionPage({Key key, this.accessToken}) : super(key: key);
   @override
   _AddSchoolSuggestionPageState createState() =>
       _AddSchoolSuggestionPageState();
@@ -14,7 +17,8 @@ class _AddSchoolSuggestionPageState extends State<AddSchoolSuggestionPage> {
   @override
   void initState() {
     super.initState();
-    Provider.of<UserViewModel>(context, listen: false).getProfile();
+    Provider.of<UserViewModel>(context, listen: false)
+        .getProfile(this.widget.accessToken);
   }
 
   @override

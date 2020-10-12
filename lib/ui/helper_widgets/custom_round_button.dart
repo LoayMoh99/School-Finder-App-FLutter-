@@ -23,7 +23,7 @@ class CustomRoundButton extends StatelessWidget {
           text,
           style: TextStyle(
             color: colorDefault ? Colors.white : Theme.of(context).primaryColor,
-            fontSize: 16,
+            fontSize: 18,
           ),
         ),
       ),

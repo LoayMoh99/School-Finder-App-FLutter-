@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:school_finder_app/core/config.dart';
+import 'package:school_finder_app/ui/helper_widgets/custom_dialog.dart';
 import 'package:school_finder_app/ui/helper_widgets/custom_round_button.dart';
+import 'package:school_finder_app/ui/helper_widgets/logo_widget.dart';
 import 'package:school_finder_app/ui/helper_widgets/textfield_widget.dart';
 
 class ForgetPasswordPage extends StatefulWidget {
@@ -11,11 +16,9 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
   final emailController = TextEditingController();
 
   bool isLoading;
-  bool isVisible;
   @override
   void initState() {
     super.initState();
-    isVisible = false;
     isLoading = false;
   }
 
@@ -28,35 +31,41 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
         child: isLoading
             ? Container(
                 child: Center(
-                  child: CircularProgressIndicator(),
+                  child: CircularProgressIndicator(
+                    backgroundColor: Colors.white,
+                  ),
                 ),
               )
             : Stack(
                 children: <Widget>[
                   Center(
                     child: Container(
-                      margin: EdgeInsets.all(size.width * 0.1),
+                      margin: EdgeInsets.all(size.width * 0.075),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(35),
                         color: Colors.white,
                       ),
                       padding: EdgeInsets.symmetric(
                         vertical: size.width * 0.075,
-                        horizontal: size.width * 0.1,
+                        horizontal: size.width * 0.06,
                       ),
                       child: SingleChildScrollView(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: <Widget>[
                             Text(
-                              'School Finder',
+                              'Reset Password',
                               style: TextStyle(
                                 color: Theme.of(context).primaryColor,
-                                fontSize: 36,
+                                fontSize: 30,
                                 fontWeight: FontWeight.bold,
-                                letterSpacing: 1.5,
+                                letterSpacing: 1.2,
                               ),
                             ),
+                            SizedBox(
+                              height: size.height * 0.03,
+                            ),
+                            LogoWidget(),
                             SizedBox(
                               height: size.height * 0.05,
                             ),
@@ -73,7 +82,9 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
                             CustomRoundButton(
                               size: size,
                               text: 'Recover',
-                              onPress: () {}, //recover the password
+                              onPress: () {
+                                passwordForget();
+                              }, //recover the password
                             ),
                             SizedBox(
                               height: size.height * 0.015,
@@ -101,5 +112,53 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
               ),
       ),
     );
+  }
+
+  passwordForget() async {
+    setState(() {
+      isLoading = true;
+    });
+    String email = emailController.text.trim();
+    if (email.isEmpty) {
+      setState(() {
+        isLoading = false;
+      });
+      customDialog('Error Occured', context, "Email can't be Empty!!", () {
+        Navigator.pop(context);
+      });
+    } else {
+      final data = {
+        'email': email,
+      };
+      final headers = {
+        'APP_KEY': getAppKey(),
+      };
+      var response = await http.post(
+        "$domain/api/password/forget",
+        body: data,
+        headers: headers,
+      );
+      var jsonResponse = json.decode(response.body);
+      if (response.statusCode == 200) {
+        if (jsonResponse != null) {
+          setState(() {
+            isLoading = false;
+          });
+          customDialog('Reset Success', context, jsonResponse['message'], () {
+            Navigator.pop(context);
+            Navigator.pop(context);
+          });
+        }
+      } else {
+        if (jsonResponse != null) {
+          setState(() {
+            isLoading = false;
+          });
+          customDialog('Error Occured', context, jsonResponse['message'], () {
+            Navigator.pop(context);
+          });
+        }
+      }
+    }
   }
 }

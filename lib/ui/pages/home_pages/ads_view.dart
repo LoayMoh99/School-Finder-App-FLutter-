@@ -62,7 +62,7 @@ class _AdsViewState extends State<AdsView> {
                                 Container(
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
-                                      colors: [
+                                      List: [
                                         Colors.black87,
                                         Colors.transparent
                                       ],

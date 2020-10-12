@@ -1,9 +1,11 @@
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:school_finder_app/core/config.dart';
+import 'package:school_finder_app/ui/helper_widgets/custom_dialog.dart';
 
-import '../../model/school_data.dart';
-import '../../viewmodels/user_view_model.dart';
+import '../../../model/school_data.dart';
+import '../../../viewmodels/user_view_model.dart';
 
 class SchoolPage extends StatefulWidget {
   final School school;
@@ -17,11 +19,21 @@ class SchoolPage extends StatefulWidget {
 class _SchoolPageState extends State<SchoolPage> {
   int _currentIndex = 0;
   PageController _pageController;
+  String accessToken;
 
   @override
   void initState() {
     super.initState();
+    _getAccessToken();
     _pageController = PageController();
+  }
+
+  _getAccessToken() async {
+    await getAccessToken().then((value) {
+      setState(() {
+        accessToken = value;
+      });
+    });
   }
 
   @override
@@ -33,6 +45,7 @@ class _SchoolPageState extends State<SchoolPage> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    Provider.of<UserViewModel>(context, listen: false).getProfile(accessToken);
     var favSchools = Provider.of<UserViewModel>(context).favSchools;
     return Scaffold(
       backgroundColor: Colors.teal[50],
@@ -76,7 +89,26 @@ class _SchoolPageState extends State<SchoolPage> {
                                 Icons.favorite_border,
                                 color: Colors.red,
                               ),
-                        onPressed: () {},
+                        onPressed: () {
+                          if (accessToken == null) {
+                            customDialog('Not Authenticated', context,
+                                "You have to login to have an account and have a favorite list 😄 ",
+                                () {
+                              Navigator.pop(context);
+                            });
+                          }
+                          if (favSchools.contains(widget.school.id)) {
+                            //remove from fav
+                            Provider.of<UserViewModel>(context, listen: false)
+                                .favoriteAction(
+                                    accessToken, widget.school.id, 'remove');
+                          } else {
+                            //add to favorites
+                            Provider.of<UserViewModel>(context, listen: false)
+                                .favoriteAction(
+                                    accessToken, widget.school.id, 'add');
+                          }
+                        },
                       ),
                       Text(
                         'Rating: ${widget.school.rating}',

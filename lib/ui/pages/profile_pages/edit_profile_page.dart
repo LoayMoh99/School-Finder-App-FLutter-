@@ -3,32 +3,52 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
-import 'package:page_transition/page_transition.dart';
 import 'package:school_finder_app/core/config.dart';
-import 'package:school_finder_app/core/validation.dart';
+import 'package:school_finder_app/model/user_data.dart';
 import 'package:school_finder_app/ui/helper_widgets/custom_dialog.dart';
 import 'package:school_finder_app/ui/helper_widgets/custom_round_button.dart';
-import 'package:school_finder_app/ui/helper_widgets/role_radio_btns.dart';
 import 'package:school_finder_app/ui/helper_widgets/textfield_widget.dart';
+import 'package:school_finder_app/ui/pages/home_pages/home_page.dart';
 
-import 'package:school_finder_app/ui/pages/auth_pages/login_page.dart';
+class EditProfilePage extends StatefulWidget {
+  final String accessToken;
+  final User user;
 
-class RegisterPage extends StatefulWidget {
+  const EditProfilePage(
+      {Key key, @required this.accessToken, @required this.user})
+      : super(key: key);
+
   @override
-  _RegisterPageState createState() => _RegisterPageState();
+  _EditProfilePageState createState() => _EditProfilePageState();
 }
 
-class _RegisterPageState extends State<RegisterPage> {
+class _EditProfilePageState extends State<EditProfilePage> {
   final nameController = TextEditingController();
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
-  final confirmPasswordController = TextEditingController();
   final phoneNoController = TextEditingController();
   final addressController = TextEditingController();
 
-  String _role = "school_finder_client";
-
   File _image;
+  Image avatarImage;
+  bool showAvatar = false;
+
+  bool removeAvatar = false;
+
+  checkAvatar() {
+    String avatarUrl = this.widget.user.avatar;
+    if (avatarUrl != null && _image == null) {
+      avatarImage = Image.network('http://127.0.0.1:8000$avatarUrl');
+      setState(() {
+        removeAvatar = false;
+        showAvatar = true;
+      });
+    } else if (_image != null) {
+      avatarImage = Image.file(_image);
+      setState(() {
+        removeAvatar = false;
+        showAvatar = true;
+      });
+    }
+  }
 
   Future<void> selectAvatar(BuildContext context) {
     return showDialog(
@@ -72,6 +92,8 @@ class _RegisterPageState extends State<RegisterPage> {
                   onPressed: () {
                     setState(() {
                       _image = null;
+                      showAvatar = false;
+                      removeAvatar = true;
                     });
                     Navigator.pop(context);
                   },
@@ -90,10 +112,9 @@ class _RegisterPageState extends State<RegisterPage> {
     this.setState(() {
       if (pickedFile != null) {
         _image = File(pickedFile.path);
-      } else {
-        print('No image selected.');
       }
     });
+    checkAvatar();
   }
 
   Future getImageFromGallery() async {
@@ -103,21 +124,22 @@ class _RegisterPageState extends State<RegisterPage> {
     this.setState(() {
       if (pickedFile != null) {
         _image = File(pickedFile.path);
-      } else {
-        print('No image selected.');
       }
     });
+    checkAvatar();
   }
 
   bool isLoading;
-  bool isVisible1;
-  bool isVisible2;
+  String accessToken;
   @override
   void initState() {
     super.initState();
-    isVisible1 = false;
-    isVisible2 = false;
     isLoading = false;
+    nameController.text = this.widget.user.name;
+    phoneNoController.text = this.widget.user.phoneNo ?? '';
+    addressController.text = this.widget.user.address ?? '';
+    accessToken = this.widget.accessToken;
+    checkAvatar();
   }
 
   @override
@@ -170,7 +192,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                     ),
                                     width: size.height * 0.1,
                                     height: size.height * 0.1,
-                                    child: (_image == null)
+                                    child: (_image == null && !showAvatar)
                                         ? Icon(Icons.person)
                                         : ClipRRect(
                                             borderRadius: BorderRadius.circular(
@@ -178,7 +200,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                             ),
                                             child: FittedBox(
                                               fit: BoxFit.fill,
-                                              child: Image.file(_image),
+                                              child: avatarImage,
                                             ),
                                           ),
                                   ),
@@ -209,49 +231,6 @@ class _RegisterPageState extends State<RegisterPage> {
                               height: size.height * 0.01,
                             ),
                             TextFieldWidget(
-                              controller: emailController,
-                              hintText: 'Email',
-                              obscureText: false,
-                              prefixIconData: Icons.mail,
-                            ),
-                            SizedBox(
-                              height: size.height * 0.01,
-                            ),
-                            TextFieldWidget(
-                              controller: passwordController,
-                              hintText: 'Password',
-                              prefixIconData: Icons.lock,
-                              obscureText: isVisible1 ? false : true,
-                              suffixOnTap: () {
-                                setState(() {
-                                  isVisible1 = !isVisible1;
-                                });
-                              },
-                              suffixIconData: isVisible1
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                            ),
-                            SizedBox(
-                              height: size.height * 0.01,
-                            ),
-                            TextFieldWidget(
-                              controller: confirmPasswordController,
-                              hintText: 'Confirm Password',
-                              prefixIconData: Icons.lock,
-                              obscureText: isVisible2 ? false : true,
-                              suffixOnTap: () {
-                                setState(() {
-                                  isVisible2 = !isVisible2;
-                                });
-                              },
-                              suffixIconData: isVisible2
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                            ),
-                            SizedBox(
-                              height: size.height * 0.01,
-                            ),
-                            TextFieldWidget(
                               controller: phoneNoController,
                               hintText: '01xxxxxxxxx ',
                               labelText: 'Phone No.',
@@ -269,23 +248,14 @@ class _RegisterPageState extends State<RegisterPage> {
                               prefixIconData: Icons.location_on,
                             ),
                             SizedBox(
-                              height: size.height * 0.01,
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(left: 8.0),
-                              child: RoleRadioButtons(
-                                callback: (val) => setState(() => _role = val),
-                              ),
-                            ),
-                            SizedBox(
                               height: size.height * 0.015,
                             ),
                             CustomRoundButton(
                               size: size,
-                              text: 'Register',
+                              text: 'Update Info',
                               onPress: () {
-                                register();
-                              }, //register
+                                update();
+                              },
                             ),
                             SizedBox(
                               height: size.height * 0.01,
@@ -295,7 +265,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 Navigator.pop(context);
                               }, //go to loginPage
                               child: Text(
-                                'Login',
+                                'Back',
                                 style: TextStyle(
                                   color: Theme.of(context).primaryColor,
                                   fontSize: 18,
@@ -315,137 +285,89 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  register() async {
+  update() async {
     setState(() {
       isLoading = true;
     });
     String name = nameController.text.trim();
-    String email = emailController.text.trim();
-    String password = passwordController.text;
-    String confirmPassword = confirmPasswordController.text;
     String phoneNo = phoneNoController.text.trim();
     String address = addressController.text.trim();
-    if (name.isEmpty ||
-        password.isEmpty ||
-        email.isEmpty ||
-        confirmPassword.isEmpty) {
+    if (name.isEmpty && phoneNo.isEmpty && address.isEmpty && _image == null) {
       setState(() {
         isLoading = false;
       });
-      customDialog('Error Occured', context,
-          "Name, Email and Password & it's confirmation are Required!!", () {
+      customDialog('Error Occured', context, "No any new values to update!!",
+          () {
         Navigator.pop(context);
       });
-    } else if (password != confirmPassword) {
+    } else if (name == this.widget.user.name &&
+        phoneNo == this.widget.user.phoneNo &&
+        address == this.widget.user.address &&
+        (!removeAvatar && _image == null)) {
       setState(() {
         isLoading = false;
       });
-      customDialog('Error Occured', context,
-          "Password & it's confirmation aren't the Same!!", () {
+      customDialog('Error Occured', context, "No any new values to update!!",
+          () {
         Navigator.pop(context);
       });
     } else {
-      if (!nameValidation(name)) {
-        setState(() {
-          isLoading = false;
-        });
-        customDialog('Error Occured', context,
-            "Wrong 'Name' Format Min:3 and Max:64 characters", () {
-          Navigator.pop(context);
-        });
-      } else if (!emailValidation(email)) {
-        setState(() {
-          isLoading = false;
-        });
-        customDialog('Error Occured', context,
-            "Wrong 'Email' Format; check @ or the dot", () {
-          Navigator.pop(context);
-        });
-      } else if (!phoneValidation(phoneNo)) {
-        setState(() {
-          isLoading = false;
-        });
-        customDialog('Error Occured', context,
-            "Wrong 'Phone Number' Format; must be 11 numbers i.e:(01xxxxxxxxx)",
-            () {
-          Navigator.pop(context);
-        });
-      } else {
-        var data = {
-          'name': name,
-          //'avatar': bytes,
-          'email': email,
-          'password': password,
-          'password_confirmation': confirmPassword,
-          //'avatar': _image,
-          if (phoneNo != null && phoneNo.isNotEmpty)
-            'phone_no': phoneNo,
-          if (address != null && address.isNotEmpty)
-            'address': address,
-          'role': _role,
-          'APP_KEY': getAppKey(),
-        };
-        try {
-          var url = "$domain/api/register";
-          var request = http.MultipartRequest('POST', Uri.parse(url));
-          if (_image != null)
-            request.files
-                .add(await http.MultipartFile.fromPath('avatar', _image.path));
-          request.fields.addAll(data);
-          var streamedResponse = await request.send();
-          var response = await http.Response.fromStream(streamedResponse);
-
-          /*var response = await http.post(
-        url,
-        body: data,
-        headers: headers,
-      );*/
-          var jsonResponse = json.decode(response.body);
-          if (response.statusCode == 201) {
-            if (jsonResponse != null) {
-              setState(() {
-                isLoading = false;
-              });
-              customDialog(
-                  'Register Complete', context, jsonResponse['message'], () {
-                Navigator.push(
-                  context,
-                  PageTransition(
-                    type: PageTransitionType.scale,
-                    alignment: Alignment.bottomCenter,
-                    child: LoginPage(),
-                    inheritTheme: true,
-                    ctx: context,
-                  ),
-                );
-              });
-            }
-          } else {
-            if (jsonResponse != null) {
-              setState(() {
-                isLoading = false;
-              });
-              customDialog('Error Occured', context, jsonResponse['message'],
-                  () {
-                Navigator.pop(context);
-              });
-            }
+      var data = {
+        if (name != null && name.isNotEmpty) 'name': name,
+        if (phoneNo != null && phoneNo.isNotEmpty) 'phone_no': phoneNo,
+        if (address != null && address.isNotEmpty) 'address': address,
+        if (removeAvatar) 'remove_avatar': 1.toString(),
+      };
+      final headers = {
+        'APP_KEY': getAppKey(),
+        'Authorization': 'Bearer $accessToken',
+      };
+      try {
+        var url = "$domain/api/user";
+        var request = http.MultipartRequest('POST', Uri.parse(url));
+        if (_image != null)
+          request.files
+              .add(await http.MultipartFile.fromPath('avatar', _image.path));
+        request.fields.addAll(data);
+        request.headers.addAll(headers);
+        var streamedResponse = await request.send();
+        var response = await http.Response.fromStream(streamedResponse);
+        var jsonResponse = json.decode(response.body);
+        if (response.statusCode == 200) {
+          setState(() {
+            isLoading = false;
+          });
+          customDialog('Update Complete', context, 'Your info is Updated 👍 ',
+              () {
+            Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(
+                    builder: (BuildContext context) => HomePage()),
+                (Route<dynamic> route) => false);
+          });
+        } else {
+          if (jsonResponse != null) {
+            setState(() {
+              isLoading = false;
+            });
+            customDialog('Error Occured', context, jsonResponse['message'], () {
+              Navigator.pop(context);
+            });
           }
-        } on FormatException {
-          setState(() {
-            isLoading = false;
-          });
-          customDialog('Error Occured', context, 'Bad Format 👎 ', () {
-            Navigator.pop(context);
-          });
-        } catch (SocketException) {
-          setState(() {
-            isLoading = false;
-          });
-          customDialog('Error Occured', context, 'Server Failed 😲 ', () {
-            Navigator.pop(context);
-          });
         }
+      } on FormatException {
+        setState(() {
+          isLoading = false;
+        });
+        customDialog('Error Occured', context, 'Bad Format 👎 ', () {
+          Navigator.pop(context);
+        });
+      } catch (SocketException) {
+        setState(() {
+          isLoading = false;
+        });
+        customDialog('Error Occured', context, 'Server Failed 😲 ', () {
+          Navigator.pop(context);
+        });
       }
     }
   }

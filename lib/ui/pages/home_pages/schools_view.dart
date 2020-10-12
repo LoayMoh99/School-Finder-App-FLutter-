@@ -1,25 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
-import 'package:school_finder_app/ui/pages/school_page.dart';
+import 'package:school_finder_app/ui/pages/school_pages/school_page.dart';
 import 'package:school_finder_app/viewmodels/change_ntifier_helper.dart';
 import 'package:school_finder_app/viewmodels/user_view_model.dart';
 import 'package:school_finder_app/viewmodels/schools_view_model.dart';
 
 class SchoolsView extends StatefulWidget {
   final Size size;
+  final String accessToken;
+  final favSchools;
 
-  const SchoolsView({this.size});
+  const SchoolsView({Key key, this.size, this.accessToken, this.favSchools})
+      : super(key: key);
 
   @override
   _SchoolsViewState createState() => _SchoolsViewState();
 }
 
 class _SchoolsViewState extends State<SchoolsView> {
+  String accessToken;
   @override
   void initState() {
     super.initState();
     Provider.of<SchoolsViewModel>(context, listen: false).getSchools();
+    accessToken = this.widget.accessToken;
+    Provider.of<UserViewModel>(context, listen: false).getProfile(accessToken);
   }
 
   @override
@@ -40,6 +46,9 @@ class _SchoolsViewState extends State<SchoolsView> {
                 child: Text(failure.message()),
               );
             }, (schools) {
+              //var favSchools = this.widget.favSchools;
+              Provider.of<UserViewModel>(context, listen: false)
+                  .getProfile(accessToken);
               var favSchools = Provider.of<UserViewModel>(context).favSchools;
               bool showSchool = (schools != null && schools.isNotEmpty);
               return ListView.builder(
@@ -80,7 +89,7 @@ class _SchoolsViewState extends State<SchoolsView> {
                                   Container(
                                     decoration: BoxDecoration(
                                       gradient: LinearGradient(
-                                        colors: [
+                                        List: [
                                           Colors.black87,
                                           Colors.transparent
                                         ],
@@ -105,19 +114,16 @@ class _SchoolsViewState extends State<SchoolsView> {
                                   ),
                                   Align(
                                     alignment: Alignment.topRight,
-                                    child: IconButton(
-                                      icon: (favSchools
-                                              .contains(schools[index].id))
-                                          ? Icon(
-                                              Icons.favorite,
-                                              color: Colors.red,
-                                            )
-                                          : Icon(
-                                              Icons.favorite_border,
-                                              color: Colors.red,
-                                            ),
-                                      onPressed: () {},
-                                    ),
+                                    child:
+                                        (favSchools.contains(schools[index].id))
+                                            ? Icon(
+                                                Icons.favorite,
+                                                color: Colors.red,
+                                              )
+                                            : Icon(
+                                                Icons.favorite_border,
+                                                color: Colors.red,
+                                              ),
                                   ),
                                 ],
                               ),

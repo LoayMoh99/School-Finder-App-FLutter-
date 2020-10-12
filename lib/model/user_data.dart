@@ -20,14 +20,15 @@ class User {
   });
 
   User.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    role = json['role'];
-    name = json['name'];
-    email = json['email'];
-    avatar = json['avatar'];
-    phoneNo = json['phone_no'];
-    address = json['address'];
-    favorites = json['favorites'].cast<int>();
+    this.id = json['id'];
+    this.role = json['role'];
+    this.name = json['name'];
+    this.email = json['email'];
+    this.avatar = json['avatar'];
+    this.phoneNo = json['phone_no'];
+    this.address = json['address'];
+    this.favorites =
+        json['favorites'] != null ? json['favorites'].cast<int>() : <int>[];
   }
 
   Map<String, dynamic> toJson() {

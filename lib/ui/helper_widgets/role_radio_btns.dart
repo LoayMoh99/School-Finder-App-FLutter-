@@ -1,8 +1,12 @@
 import 'package:dropdownfield/dropdownfield.dart';
 import 'package:flutter/material.dart';
 
+typedef void StringCallback(String val);
+
 class RoleRadioButtons extends StatefulWidget {
-  RoleRadioButtons({Key key}) : super(key: key);
+  final StringCallback callback;
+
+  const RoleRadioButtons({Key key, this.callback}) : super(key: key);
 
   @override
   _RoleRadioButtonsState createState() => _RoleRadioButtonsState();
@@ -53,6 +57,7 @@ class _RoleRadioButtonsState extends State<RoleRadioButtons> {
                   setState(() {
                     role = T;
                   });
+                  this.widget.callback('school_finder_client');
                 }),
             Text('School Finders'),
           ],
@@ -66,6 +71,7 @@ class _RoleRadioButtonsState extends State<RoleRadioButtons> {
                   setState(() {
                     role = T;
                   });
+                  this.widget.callback('school_admin');
                 }),
             Text('School Admin'),
           ],
@@ -79,9 +85,7 @@ class _RoleRadioButtonsState extends State<RoleRadioButtons> {
             icon: Icon(Icons.school),
             enabled: true,
             items: schools,
-            onValueChanged: (school) {
-              print(school);
-            },
+            onValueChanged: (school) {},
             setter: (school) {
               setState(() {
                 selectedSchool = school;

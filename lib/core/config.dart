@@ -26,3 +26,5 @@ Future<String> getAccessToken() async {
   });
   return accessToken;
 }
+
+String domain = 'http://10.0.2.2:8000';

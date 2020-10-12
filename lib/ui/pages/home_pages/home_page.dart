@@ -1,17 +1,15 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 import 'package:school_finder_app/model/school_data.dart';
 import 'package:school_finder_app/viewmodels/user_view_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'add_suggestion_page.dart';
 import 'ads_view.dart';
 import 'compare_page.dart';
-import 'profile_drawer.dart';
-import '../school_page.dart';
+import '../profile_pages/profile_drawer.dart';
+import '../school_pages/school_page.dart';
 import 'schools_view.dart';
 
 class HomePage extends StatefulWidget {
@@ -20,39 +18,25 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  var name, role;
   String accessToken;
   bool isLoading = false;
-
+  SharedPreferences sharedPreferences;
+  var favSchools;
   @override
   void initState() {
     super.initState();
-    Provider.of<UserViewModel>(context, listen: false).getProfile();
+    getSharedPreference();
   }
 
-  getProfile() async {
-    setState(() {
-      isLoading = true;
-    });
-    var response =
-        await http.post("http://10.0.2.2:8000/api/user/profile", headers: {
-      'Authorization': 'Bearer $accessToken',
-    });
-    if (response.statusCode == 200) {
-      var jsonResponse = json.decode(response.body);
-      if (jsonResponse != null) {
-        setState(() {
-          isLoading = false;
-        });
-      }
-      name = jsonResponse['name'];
-      role = jsonResponse['role'];
-    } else {
+  getSharedPreference() async {
+    sharedPreferences = await SharedPreferences.getInstance().then((value) {
       setState(() {
-        isLoading = false;
+        accessToken = value.getString('access_token');
       });
-      print(response.body);
-    }
+      Provider.of<UserViewModel>(context, listen: false)
+          .getProfile(accessToken);
+      return value;
+    });
   }
 
   void showFilterOptions(size) {
@@ -87,7 +71,9 @@ class _HomePageState extends State<HomePage> {
               context,
               PageTransition(
                 type: PageTransitionType.scale,
-                child: AddSchoolSuggestionPage(),
+                child: AddSchoolSuggestionPage(
+                  accessToken: accessToken,
+                ),
                 inheritTheme: true,
                 ctx: context,
                 alignment: Alignment.bottomRight,
@@ -99,11 +85,12 @@ class _HomePageState extends State<HomePage> {
         ),
         drawer: ProfileDrawer(
           size: size,
+          accessToken: accessToken,
         ),
         appBar: AppBar(
           centerTitle: true,
           title: Text(
-            'School Finder',
+            'Schools Finder',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               letterSpacing: 1.0,
@@ -175,6 +162,7 @@ class _HomePageState extends State<HomePage> {
             ),
             SchoolsView(
               size: size,
+              accessToken: accessToken,
             ),
           ],
         ),
