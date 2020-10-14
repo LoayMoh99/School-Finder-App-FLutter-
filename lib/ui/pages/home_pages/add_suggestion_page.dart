@@ -47,65 +47,65 @@ class _AddSchoolSuggestionPageState extends State<AddSchoolSuggestionPage> {
                           prefixIconData: Icons.school,
                         ),
                       ),
-                      if (_role != null && _role != 'school_finder_client')
-                        Column(
-                          children: <Widget>[
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: TextFieldWidget(
-                                autoFocus: false,
-                                hintText: 'Name',
-                                obscureText: false,
-                                prefixIconData: Icons.school,
-                              ),
+                      Text('*required'),
+                      Column(
+                        children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: TextFieldWidget(
+                              autoFocus: false,
+                              hintText: 'Name',
+                              obscureText: false,
+                              prefixIconData: Icons.school,
                             ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: TextFieldWidget(
-                                autoFocus: false,
-                                hintText: 'Name',
-                                obscureText: false,
-                                prefixIconData: Icons.school,
-                              ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: TextFieldWidget(
+                              autoFocus: false,
+                              hintText: 'Name',
+                              obscureText: false,
+                              prefixIconData: Icons.school,
                             ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: TextFieldWidget(
-                                autoFocus: false,
-                                hintText: 'Name',
-                                obscureText: false,
-                                prefixIconData: Icons.school,
-                              ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: TextFieldWidget(
+                              autoFocus: false,
+                              hintText: 'Name',
+                              obscureText: false,
+                              prefixIconData: Icons.school,
                             ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: TextFieldWidget(
-                                autoFocus: false,
-                                hintText: 'Name',
-                                obscureText: false,
-                                prefixIconData: Icons.school,
-                              ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: TextFieldWidget(
+                              autoFocus: false,
+                              hintText: 'Name',
+                              obscureText: false,
+                              prefixIconData: Icons.school,
                             ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: TextFieldWidget(
-                                autoFocus: false,
-                                hintText: 'Name',
-                                obscureText: false,
-                                prefixIconData: Icons.school,
-                              ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: TextFieldWidget(
+                              autoFocus: false,
+                              hintText: 'Name',
+                              obscureText: false,
+                              prefixIconData: Icons.school,
                             ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: TextFieldWidget(
-                                autoFocus: false,
-                                hintText: 'Name',
-                                obscureText: false,
-                                prefixIconData: Icons.school,
-                              ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: TextFieldWidget(
+                              autoFocus: false,
+                              hintText: 'Name',
+                              obscureText: false,
+                              prefixIconData: Icons.school,
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),

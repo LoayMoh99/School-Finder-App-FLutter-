@@ -37,8 +37,11 @@ class School {
   School.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     name = json['name'];
-    stages = json['stages'].cast<String>();
-    certificates = json['certificates'].cast<String>();
+    stages =
+        json['stages'] != null ? json['stages'].cast<String>() : <String>[];
+    certificates = json['certificates'] != null
+        ? json['certificates'].cast<String>()
+        : <String>[];
     gender = json['gender'];
     mainLanguage = json['main language'];
     addresss = json['addresss'];
@@ -46,14 +49,17 @@ class School {
     annualFees = json['Annual fees'];
     description = json['description'];
     estiblashingYear = json['estiblashing year'];
-    gallery = json['gallery'].cast<String>();
+    gallery =
+        json['gallery'] != null ? json['gallery'].cast<String>() : <String>[];
     if (json['facilities'] != null) {
       facilities = new List<Facilities>();
       json['facilities'].forEach((v) {
         facilities.add(new Facilities.fromJson(v));
       });
     }
-    externalUrls = json['external_urls'].cast<String>();
+    externalUrls = json['external_urls'] != null
+        ? json['external_urls'].cast<String>()
+        : <String>[];
     rating = json['rating'];
     ratedBy = json['rated by'];
   }

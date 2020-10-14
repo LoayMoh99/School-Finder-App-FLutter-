@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:school_finder_app/core/config.dart';
@@ -23,6 +24,12 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    ScreenUtil.init(context);
+  }
+
+  @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Scaffold(
@@ -39,17 +46,17 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
             : Stack(
                 children: <Widget>[
                   Center(
-                    child: Container(
-                      margin: EdgeInsets.all(size.width * 0.075),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(35),
-                        color: Colors.white,
-                      ),
-                      padding: EdgeInsets.symmetric(
-                        vertical: size.width * 0.075,
-                        horizontal: size.width * 0.06,
-                      ),
-                      child: SingleChildScrollView(
+                    child: SingleChildScrollView(
+                      child: Container(
+                        margin: EdgeInsets.all(size.width * 0.075),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(35),
+                          color: Colors.white,
+                        ),
+                        padding: EdgeInsets.symmetric(
+                          vertical: size.width * 0.075,
+                          horizontal: size.width * 0.06,
+                        ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: <Widget>[
@@ -57,7 +64,7 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
                               'Reset Password',
                               style: TextStyle(
                                 color: Theme.of(context).primaryColor,
-                                fontSize: 30,
+                                fontSize: ScreenUtil().setSp(70),
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 1.2,
                               ),

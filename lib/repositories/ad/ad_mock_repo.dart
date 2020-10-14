@@ -1,17 +1,45 @@
 import 'dart:async';
 
+import 'package:school_finder_app/core/config.dart';
+import 'package:school_finder_app/core/failure.dart';
 import 'package:school_finder_app/model/ad_data.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 import 'ad_repository.dart';
 
 class MockAdRepository implements AdRepository {
   @override
-  Future<List<Ad>> fetchAds() {
+  Future<List<Ad>> fetchAds() async {
     // : implement fetchCurrencies
-    return new Future.delayed(
+    /*return new Future.delayed(
       Duration(seconds: 1),
       () => ads,
-    );
+    );*/
+
+    var url = "$domain/api/ads";
+    final headers = {
+      'APP_KEY': getAppKey(),
+    };
+    try {
+      var response = await http.get(url, headers: headers);
+      var responseBody = json.decode(response.body);
+      var statusCode = response.statusCode;
+      if (statusCode != 200 || responseBody == null) {
+        if (statusCode == 500) throw new Failure("No Internet!");
+        throw new Failure("An error ocurred : [Status Code : $statusCode]");
+      }
+      List<Ad> ads = <Ad>[];
+      for (var resp in responseBody['data']) {
+        Ad ad = new Ad.fromJson(resp);
+        ads.add(ad);
+      }
+      return ads;
+    } on FormatException {
+      throw new Failure("Bad Format 👎 ");
+    } on TypeError {
+      throw new Failure("Type Error 😲");
+    }
   }
 }
 

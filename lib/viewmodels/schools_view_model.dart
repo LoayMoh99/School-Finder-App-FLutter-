@@ -15,11 +15,18 @@ class SchoolsViewModel extends ChangeNotifier {
     _state = state;
   }
 
+  List<School> _succSchools = <School>[];
+  List<School> get succSchools => _succSchools;
+
   Either<Failure, List<School>> _schools;
   Either<Failure, List<School>> get schools => _schools;
   void _setSchools(Either<Failure, List<School>> schools) {
     _schools = schools;
     notifyListeners();
+  }
+
+  void setSuccSchools(List<School> succSchools) {
+    _succSchools = succSchools;
   }
 
   void getSchools() async {

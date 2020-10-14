@@ -39,6 +39,7 @@ class _AdsViewState extends State<AdsView> {
               );
             }, (ads) {
               bool showAd = (ads != null && ads.isNotEmpty);
+
               return ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: showAd ? ads.length : 1,
@@ -54,15 +55,25 @@ class _AdsViewState extends State<AdsView> {
                               children: <Widget>[
                                 FittedBox(
                                   fit: BoxFit.fill,
-                                  child: Image.asset(
-                                      ads[index].adImageUrl != null
-                                          ? '${ads[index].adImageUrl}'
-                                          : 'imgs/placeholder.jpg'),
+                                  child: ads[index].adImageUrl != null
+                                      ? /*Image.network(
+                                          'http://127.0.0.1:8000/${ads[index].adImageUrl}',
+                                          loadingBuilder: (BuildContext context,
+                                              Widget child,
+                                              ImageChunkEvent loadingProgress) {
+                                            if (loadingProgress == null)
+                                              return child;
+                                            return Image.asset(
+                                                'imgs/placeholder.jpg');
+                                          },
+                                        )*/
+                                      Image.asset('${ads[index].adImageUrl}')
+                                      : Image.asset('imgs/placeholder.jpg'),
                                 ),
                                 Container(
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
-                                      List: [
+                                      colors: [
                                         Colors.black87,
                                         Colors.transparent
                                       ],

@@ -24,6 +24,7 @@ class MockUserRepository implements UserRepository {
       var responseBody = json.decode(response.body);
       var statusCode = response.statusCode;
       if (statusCode != 200 || responseBody == null) {
+        if (statusCode == 500) throw new Failure("No Internet!");
         throw new Failure("An error ocurred : [Status Code : $statusCode]");
       }
       User user;
@@ -31,9 +32,10 @@ class MockUserRepository implements UserRepository {
       return user;
     } on FormatException {
       throw new Failure("Bad Format 👎 ");
-    } catch (SocketException) {
-      throw new Failure("Server Failed 😲");
     }
+    // catch (SocketException) {
+    //   print("Server Failed 😲");
+    // }
   }
 
   @override
@@ -48,14 +50,24 @@ class MockUserRepository implements UserRepository {
       var responseBody = json.decode(response.body);
       var statusCode = response.statusCode;
       if (statusCode != 200 || responseBody == null) {
+        if (statusCode == 500) throw new Failure("No Internet!");
         throw new Failure("An error ocurred : [Status Code : $statusCode]");
       }
-      print(responseBody);
-      return responseBody.map((c) => new School.fromJson(c)).toList();
+      List<School> schools = <School>[];
+      try {
+        for (var resp in responseBody) {
+          School school = new School.fromJson(resp);
+          schools.add(school);
+        }
+      } catch (e) {
+        //empty fav list
+        return <School>[];
+      }
+      return schools;
     } on FormatException {
       throw new Failure("Bad Format 👎 ");
     } catch (SocketException) {
-      throw new Failure("Server Failed 😲");
+      throw new Failure("Try Again Later 😲");
     }
   }
 
@@ -71,14 +83,12 @@ class MockUserRepository implements UserRepository {
       var responseBody = json.decode(response.body);
       var statusCode = response.statusCode;
       if (statusCode != 200 || responseBody == null) {
+        if (statusCode == 500) throw new Failure("No Internet!");
         throw new Failure("An error ocurred : [Status Code : $statusCode]");
       }
-      print(responseBody);
-      return responseBody;
+      return responseBody.cast<int>();
     } on FormatException {
       throw new Failure("Bad Format 👎 ");
-    } catch (SocketException) {
-      throw new Failure("Server Failed 😲");
     }
   }
 }

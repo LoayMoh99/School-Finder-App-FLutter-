@@ -49,88 +49,128 @@ class _FavSchoolsPageState extends State<FavSchoolsPage> {
                   child: Text(failure.message()),
                 );
               }, (schools) {
-                //var favSchools = this.widget.favSchools;
-                Provider.of<UserViewModel>(context, listen: false)
-                    .getProfile(accessToken);
                 bool showSchool = (schools != null && schools.isNotEmpty);
-                return ListView.builder(
-                  itemCount: showSchool ? schools.length : 1,
-                  itemBuilder: (context, index) {
-                    return InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          PageTransition(
-                            type: PageTransitionType.scale,
-                            child: SchoolPage(
-                              school: schools[index],
-                            ),
-                            inheritTheme: true,
-                            ctx: context,
-                            alignment: Alignment.bottomCenter,
-                          ),
-                        );
-                      },
-                      child: Container(
-                        margin: EdgeInsets.all(8),
-                        width: size.width,
-                        height: size.height * 0.25,
-                        child: showSchool
-                            ? Container(
-                                margin: EdgeInsets.fromLTRB(8, 0, 8, 0),
-                                child: Stack(
-                                  fit: StackFit.expand,
-                                  children: <Widget>[
-                                    FittedBox(
-                                      fit: BoxFit.fill,
-                                      child: Image.asset(
-                                          schools[index].gallery[0] != null
+                return showSchool
+                    ? ListView.builder(
+                        itemCount: schools.length,
+                        itemBuilder: (context, index) {
+                          return InkWell(
+                            onTap: () {
+                              Navigator.pushReplacement(
+                                context,
+                                PageTransition(
+                                  type: PageTransitionType.scale,
+                                  child: SchoolPage(
+                                    school: schools[index],
+                                  ),
+                                  inheritTheme: true,
+                                  ctx: context,
+                                  alignment: Alignment.bottomCenter,
+                                ),
+                              );
+                            },
+                            child: Container(
+                                margin: EdgeInsets.all(8),
+                                width: size.width,
+                                height: size.height * 0.25,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+                                  margin: EdgeInsets.fromLTRB(8, 0, 8, 0),
+                                  child: Stack(
+                                    fit: StackFit.expand,
+                                    children: <Widget>[
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(15),
+                                        child: FittedBox(
+                                          fit: BoxFit.fill,
+                                          child: Image.asset(schools[index]
+                                                      .gallery[0] !=
+                                                  null
                                               ? '${schools[index].gallery[0]}'
                                               : 'imgs/placeholder.jpg'),
-                                    ),
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                          List: [
-                                            Colors.black87,
-                                            Colors.transparent
-                                          ],
-                                          begin: Alignment.bottomCenter,
-                                          end: Alignment.center,
                                         ),
                                       ),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.fromLTRB(8, 0, 0, 8),
-                                      child: Align(
-                                        alignment: Alignment.bottomLeft,
-                                        child: Text(
-                                          '${schools[index].name}',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold,
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(15),
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              Colors.black87,
+                                              Colors.transparent
+                                            ],
+                                            begin: Alignment.bottomCenter,
+                                            end: Alignment.center,
                                           ),
                                         ),
                                       ),
-                                    ),
-                                    Align(
-                                      alignment: Alignment.topRight,
-                                      child: Icon(
-                                        Icons.favorite,
-                                        color: Colors.red,
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(15),
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              Colors.black54,
+                                              Colors.transparent
+                                            ],
+                                            begin: Alignment.centerRight,
+                                            end: Alignment.center,
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            : Center(
-                                child: Text('No Schools'),
-                              ),
-                      ),
-                    );
-                  },
-                );
+                                      Padding(
+                                        padding:
+                                            EdgeInsets.fromLTRB(10, 0, 10, 10),
+                                        child: Align(
+                                          alignment: Alignment.bottomCenter,
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                '${schools[index].name}',
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              Text(
+                                                'Rating: ${schools[index].rating}',
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding:
+                                            EdgeInsets.fromLTRB(0, 10, 10, 0),
+                                        child: Align(
+                                          alignment: Alignment.topRight,
+                                          child: Icon(
+                                            Icons.favorite,
+                                            color: Colors.red,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )),
+                          );
+                        },
+                      )
+                    : Center(
+                        child: Text('No Schools'),
+                      );
               });
             }
           }),

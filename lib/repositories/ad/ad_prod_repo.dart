@@ -15,6 +15,7 @@ class ProdAdRepository implements AdRepository {
     final List responseBody = json.decode(response.body);
     final statusCode = response.statusCode;
     if (statusCode != 200 || responseBody == null) {
+      if (statusCode == 500) throw new Failure("No Internet!");
       throw new Failure("An error ocurred : [Status Code : $statusCode]");
     }
 

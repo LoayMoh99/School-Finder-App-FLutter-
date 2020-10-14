@@ -11,8 +11,23 @@ class UserViewModel extends ChangeNotifier {
   List<int> favSchools = <int>[];
   UserRepository _userRepository = new Injector().userRepository;
   User user;
+  void getProfile(accessToken) async {
+    try {
+      await _userRepository.fetchUser(accessToken).then((profile) {
+        user = profile;
+        favSchools = (user == null) ? <int>[] : user.favorites;
+        notifyListeners();
+      });
+    } on Failure catch (f) {
+      user = new User(
+        id: -1,
+        name: f.message(),
+      );
+      notifyListeners();
+    }
+  }
 
-  _setFavorites(List<int> favs) {
+  setFavorites(List<int> favs) {
     favSchools = favs;
     notifyListeners();
   }
@@ -23,7 +38,7 @@ class UserViewModel extends ChangeNotifier {
       await _userRepository
           .favoritesAction(accessToken, schoolId, action)
           .then((favs) {
-        _setFavorites(favs);
+        setFavorites(favs);
       });
     } on Failure catch (f) {
       print(f.message());
@@ -53,21 +68,5 @@ class UserViewModel extends ChangeNotifier {
         .run() //convert back the Either type to a Future
         .then((value) => _setFavSchools(value));
     _setState(NotifierState.loaded);
-  }
-
-  void getProfile(accessToken) async {
-    try {
-      await _userRepository.fetchUser(accessToken).then((profile) {
-        user = profile;
-        favSchools = user.favorites;
-        notifyListeners();
-      });
-    } on Failure catch (f) {
-      user = new User(
-        id: -1,
-        name: f.message(),
-      );
-      notifyListeners();
-    }
   }
 }

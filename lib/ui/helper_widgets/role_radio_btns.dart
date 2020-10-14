@@ -1,4 +1,3 @@
-import 'package:dropdownfield/dropdownfield.dart';
 import 'package:flutter/material.dart';
 
 typedef void StringCallback(String val);
@@ -76,7 +75,7 @@ class _RoleRadioButtonsState extends State<RoleRadioButtons> {
             Text('School Admin'),
           ],
         ),
-        if (role == 2)
+        /*if (role == 2)
           DropDownField(
             strict: false,
             value: selectedSchool,
@@ -85,13 +84,12 @@ class _RoleRadioButtonsState extends State<RoleRadioButtons> {
             icon: Icon(Icons.school),
             enabled: true,
             items: schools,
-            onValueChanged: (school) {},
             setter: (school) {
               setState(() {
                 selectedSchool = school;
               });
             },
-          ),
+          ),*/
       ],
     );
   }

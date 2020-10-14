@@ -33,12 +33,22 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
   SharedPreferences sharedPreferences;
   bool isLoading = false;
   String accessToken;
+  User user;
   @override
   void initState() {
     super.initState();
     accessToken = this.widget.accessToken;
-    Provider.of<UserViewModel>(context, listen: false).getProfile(accessToken);
-    getSharedPref();
+    if (accessToken != null) {
+      Provider.of<UserViewModel>(context, listen: false)
+          .getProfile(accessToken);
+      getSharedPref();
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    user = Provider.of<UserViewModel>(context).user;
   }
 
   getSharedPref() async {
@@ -47,7 +57,7 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
 
   @override
   Widget build(BuildContext context) {
-    User user = Provider.of<UserViewModel>(context).user;
+    //User user = Provider.of<UserViewModel>(context).user;
     bool error = (user != null && user.id == -1);
     bool showProfilePic = (user != null && user.avatar != null);
     bool showUserName = (user != null && user.name != null);
@@ -62,8 +72,11 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
                 ),
                 RaisedButton(
                   onPressed: () {
-                    Provider.of<UserViewModel>(context, listen: false)
-                        .getProfile(accessToken);
+                    setState(() {
+                      Provider.of<UserViewModel>(context, listen: false)
+                          .getProfile(accessToken);
+                      error = false;
+                    });
                   },
                   child: Text('Referesh'),
                 )
@@ -102,7 +115,8 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
                             )
                           : Icon(Icons.person),
                     ),
-                    if (showUserName) Text('${user.name}'),
+                    if (showUserName && accessToken != null)
+                      Text('${user.name}'),
                   ],
                 ),
                 SizedBox(
@@ -114,7 +128,7 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
                   width: this.widget.size.width * 0.4,
                   child: RaisedButton.icon(
                     color: Colors.teal[200],
-                    onPressed: user == null
+                    onPressed: user == null || accessToken == null
                         ? null
                         : () {
                             Navigator.push(
@@ -141,7 +155,7 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
                   width: this.widget.size.width * 0.4,
                   child: RaisedButton.icon(
                     color: Colors.teal[200],
-                    onPressed: user == null
+                    onPressed: user == null || accessToken == null
                         ? null
                         : () {
                             Navigator.push(
@@ -171,7 +185,9 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
                       child: RaisedButton.icon(
                         color: Colors.teal[200],
                         onPressed:
-                            (isLoading || user == null) ? null : () => logout(),
+                            (isLoading || user == null || accessToken == null)
+                                ? null
+                                : () => logout(),
                         icon: Icon(Icons.exit_to_app),
                         label: Text(isLoading ? 'Logging Out..' : 'Logout'),
                       ),
@@ -191,46 +207,51 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
       'APP_KEY': getAppKey(),
       'Authorization': 'Bearer $accessToken',
     };
-    sharedPreferences.clear();
-    try {
-      var response = await http.get(
-        "$domain/api/logout",
-        headers: headers,
-      );
-      var jsonResponse = json.decode(response.body);
-      if (response.statusCode == 200) {
-        if (jsonResponse != null) {
+    sharedPreferences.clear().then((value) async {
+      if (value) {
+        try {
+          var response = await http.get(
+            "$domain/api/logout",
+            headers: headers,
+          );
+          var jsonResponse = json.decode(response.body);
+          if (response.statusCode == 200) {
+            if (jsonResponse != null) {
+              setState(() {
+                isLoading = false;
+              });
+              Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(
+                      builder: (BuildContext context) => LoginPage()),
+                  (Route<dynamic> route) => false);
+            }
+          } else {
+            if (jsonResponse != null) {
+              setState(() {
+                isLoading = false;
+              });
+              customDialog('Error Occured', context, jsonResponse['message'],
+                  () {
+                Navigator.pop(context);
+              });
+            }
+          }
+        } on FormatException {
           setState(() {
             isLoading = false;
           });
-          Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (BuildContext context) => LoginPage()),
-              (Route<dynamic> route) => false);
-        }
-      } else {
-        if (jsonResponse != null) {
+          customDialog('Error Occured', context, 'Bad Format 👎 ', () {
+            Navigator.pop(context);
+          });
+        } catch (SocketException) {
           setState(() {
             isLoading = false;
           });
-          customDialog('Error Occured', context, jsonResponse['message'], () {
+          customDialog('Error Occured', context, 'Server Failed 😲 ', () {
             Navigator.pop(context);
           });
         }
       }
-    } on FormatException {
-      setState(() {
-        isLoading = false;
-      });
-      customDialog('Error Occured', context, 'Bad Format 👎 ', () {
-        Navigator.pop(context);
-      });
-    } catch (SocketException) {
-      setState(() {
-        isLoading = false;
-      });
-      customDialog('Error Occured', context, 'Server Failed 😲 ', () {
-        Navigator.pop(context);
-      });
-    }
+    });
   }
 }

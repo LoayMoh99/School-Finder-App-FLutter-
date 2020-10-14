@@ -45,7 +45,9 @@ class _SchoolPageState extends State<SchoolPage> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    Provider.of<UserViewModel>(context, listen: false).getProfile(accessToken);
+    // if (accessToken != null)
+    //   Provider.of<UserViewModel>(context, listen: false)
+    //       .getProfile(accessToken);
     var favSchools = Provider.of<UserViewModel>(context).favSchools;
     return Scaffold(
       backgroundColor: Colors.teal[50],
@@ -58,7 +60,7 @@ class _SchoolPageState extends State<SchoolPage> {
               child: FittedBox(
                 fit: BoxFit.fill,
                 child: Image.asset((widget.school.gallery != null &&
-                        widget.school.gallery[0] != null)
+                        widget.school.gallery.isNotEmpty)
                     ? '${widget.school.gallery[0]}'
                     : 'imgs/placeholder.jpg'),
               ),
@@ -80,7 +82,8 @@ class _SchoolPageState extends State<SchoolPage> {
                   Column(
                     children: <Widget>[
                       IconButton(
-                        icon: (favSchools.contains(widget.school.id))
+                        icon: (favSchools.contains(widget.school.id) &&
+                                accessToken != null)
                             ? Icon(
                                 Icons.favorite,
                                 color: Colors.red,
@@ -96,17 +99,18 @@ class _SchoolPageState extends State<SchoolPage> {
                                 () {
                               Navigator.pop(context);
                             });
-                          }
-                          if (favSchools.contains(widget.school.id)) {
-                            //remove from fav
-                            Provider.of<UserViewModel>(context, listen: false)
-                                .favoriteAction(
-                                    accessToken, widget.school.id, 'remove');
                           } else {
-                            //add to favorites
-                            Provider.of<UserViewModel>(context, listen: false)
-                                .favoriteAction(
-                                    accessToken, widget.school.id, 'add');
+                            if (favSchools.contains(widget.school.id)) {
+                              //remove from fav
+                              Provider.of<UserViewModel>(context, listen: false)
+                                  .favoriteAction(
+                                      accessToken, widget.school.id, 'remove');
+                            } else {
+                              //add to favorites
+                              Provider.of<UserViewModel>(context, listen: false)
+                                  .favoriteAction(
+                                      accessToken, widget.school.id, 'add');
+                            }
                           }
                         },
                       ),
