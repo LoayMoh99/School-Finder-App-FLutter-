@@ -7,6 +7,7 @@ class TextFieldWidget extends StatelessWidget {
   final bool obscureText;
   final Function suffixOnTap;
   final controller;
+  final keyboardType;
   final bool autoFocus;
 
   const TextFieldWidget({
@@ -18,12 +19,14 @@ class TextFieldWidget extends StatelessWidget {
     this.obscureText,
     this.suffixOnTap,
     this.controller,
+    this.keyboardType = TextInputType.text,
     this.autoFocus = false,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return TextField(
+      keyboardType: keyboardType,
       controller: controller,
       obscureText: obscureText,
       cursorColor: Theme.of(context).primaryColor,

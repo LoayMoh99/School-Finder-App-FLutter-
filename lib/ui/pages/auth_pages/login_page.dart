@@ -39,7 +39,7 @@ class _LoginPageState extends State<LoginPage> {
             style: TextStyle(color: Theme.of(context).primaryColorDark),
           ),
           content: Text(
-              'You will be missing a lot of the Features that Authenticated users have..'),
+              'You will be missing a lot of the Features that Authenticated users have 💔 '),
           actions: <Widget>[
             RaisedButton(
               shape: RoundedRectangleBorder(
@@ -137,6 +137,7 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                             ),
                             TextFieldWidget(
+                              keyboardType: TextInputType.emailAddress,
                               controller: emailController,
                               hintText: 'Name / Email',
                               obscureText: false,

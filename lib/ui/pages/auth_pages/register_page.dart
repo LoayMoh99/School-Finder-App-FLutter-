@@ -200,6 +200,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               height: size.height * 0.015,
                             ),
                             TextFieldWidget(
+                              keyboardType: TextInputType.name,
                               controller: nameController,
                               hintText: 'Name',
                               obscureText: false,
@@ -209,6 +210,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               height: size.height * 0.01,
                             ),
                             TextFieldWidget(
+                              keyboardType: TextInputType.emailAddress,
                               controller: emailController,
                               hintText: 'Email',
                               obscureText: false,
@@ -252,6 +254,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               height: size.height * 0.01,
                             ),
                             TextFieldWidget(
+                              keyboardType: TextInputType.phone,
                               controller: phoneNoController,
                               hintText: '01xxxxxxxxx ',
                               labelText: 'Phone No.',
@@ -262,6 +265,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               height: size.height * 0.01,
                             ),
                             TextFieldWidget(
+                              keyboardType: TextInputType.streetAddress,
                               controller: addressController,
                               hintText: 'Street - City ',
                               labelText: 'Address',
@@ -378,10 +382,8 @@ class _RegisterPageState extends State<RegisterPage> {
           'password': password,
           'password_confirmation': confirmPassword,
           //'avatar': _image,
-          if (phoneNo != null && phoneNo.isNotEmpty)
-            'phone_no': phoneNo,
-          if (address != null && address.isNotEmpty)
-            'address': address,
+          if (phoneNo != null && phoneNo.isNotEmpty) 'phone_no': phoneNo,
+          if (address != null && address.isNotEmpty) 'address': address,
           'role': _role,
           'APP_KEY': getAppKey(),
         };

@@ -30,7 +30,7 @@ class MockAdRepository implements AdRepository {
         throw new Failure("An error ocurred : [Status Code : $statusCode]");
       }
       List<Ad> ads = <Ad>[];
-      for (var resp in responseBody['data']) {
+      for (var resp in responseBody) {
         Ad ad = new Ad.fromJson(resp);
         ads.add(ad);
       }

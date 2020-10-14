@@ -77,6 +77,7 @@ class _ForgetPasswordPageState extends State<ForgetPasswordPage> {
                               height: size.height * 0.05,
                             ),
                             TextFieldWidget(
+                              keyboardType: TextInputType.emailAddress,
                               controller: emailController,
                               hintText: 'Email',
                               obscureText: false,

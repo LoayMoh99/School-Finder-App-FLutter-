@@ -5,7 +5,9 @@ import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 import 'package:school_finder_app/core/config.dart';
 import 'package:school_finder_app/model/school_data.dart';
+import 'package:school_finder_app/ui/helper_widgets/custom_dialog.dart';
 import 'package:school_finder_app/ui/pages/home_pages/compare_page.dart';
+import 'package:school_finder_app/ui/pages/home_pages/filtered_schools_view.dart';
 import 'package:school_finder_app/viewmodels/user_view_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -26,7 +28,10 @@ class _HomePageState extends State<HomePage> {
   bool isLoading = false;
   SharedPreferences sharedPreferences;
   TextEditingController maxFeesController = new TextEditingController();
+  TextEditingController addressController = new TextEditingController();
+  String _selectedLanguage, _selectedCertificate, _selectedStage;
   var favSchools;
+  bool isFiltering = false;
   @override
   void initState() {
     super.initState();
@@ -44,83 +49,262 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  filterSchools() async {
+    setState(() {
+      isFiltering = true;
+    });
+    List<School> schools = <School>[];
+    final data = {
+      if (maxFeesController.text.isNotEmpty) 'MaxFees': maxFeesController.text,
+      if (addressController.text.isNotEmpty) 'Address': addressController.text,
+      if (_selectedLanguage != null && _selectedLanguage != 'Any')
+        'Language': _selectedLanguage,
+      if (_selectedCertificate != null && _selectedCertificate != 'Any')
+        'Certificate': _selectedCertificate,
+      if (_selectedStage != null && _selectedStage != 'Any')
+        'Stage': _selectedStage,
+    };
+    final headers = {
+      'APP_KEY': getAppKey(),
+    };
+    await http
+        .post(
+      "$domain/api/schools/filter",
+      body: data,
+      headers: headers,
+    )
+        .then((response) {
+      var jsonResponse = json.decode(response.body);
+      if (response.statusCode == 200) {
+        if (jsonResponse != null) {
+          for (var resp in jsonResponse) {
+            School school = new School.fromJson(resp);
+            schools.add(school);
+          }
+          setState(() {
+            isFiltering = false;
+          });
+          Navigator.of(context).push(
+            PageTransition(
+              type: PageTransitionType.scale,
+              alignment: Alignment.bottomCenter,
+              child: FilteredSchoolsView(
+                schools: schools,
+              ),
+              inheritTheme: true,
+              ctx: context,
+            ),
+          );
+        }
+      } else {
+        setState(() {
+          isFiltering = false;
+        });
+        customDialog(
+            'Error Occured', context, jsonResponse['message'] ?? 'No Schools!!',
+            () {
+          Navigator.pop(context);
+        });
+      }
+    });
+  }
+
   void showFilterOptions(size) {
     showModalBottomSheet(
         context: context,
         builder: (builder) {
           return new Container(
-            height: size.height * 0.5,
+            height: size.height * 0.8,
             color: Color(0xFF737373),
             child: new Container(
+              height: size.height * 0.8,
+              padding: EdgeInsets.fromLTRB(8, 16, 8, 0),
               decoration: new BoxDecoration(
                   color: Colors.white,
                   borderRadius: new BorderRadius.only(
                       topLeft: const Radius.circular(25.0),
                       topRight: const Radius.circular(25.0))),
-              child: Column(
-                children: [
-                  //max fees textfield
-                  TextField(
-                    controller: maxFeesController,
-                    cursorColor: Theme.of(context).primaryColor,
-                    style: TextStyle(
-                      color: Theme.of(context).primaryColor,
-                      fontSize: 14.0,
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    //max fees textfield
+                    TextField(
+                      controller: maxFeesController,
+                      cursorColor: Theme.of(context).primaryColor,
+                      style: TextStyle(
+                        color: Theme.of(context).primaryColor,
+                        fontSize: 14.0,
+                      ),
+                      decoration: InputDecoration(
+                        labelStyle: TextStyle(color: Colors.teal),
+                        focusColor: Theme.of(context).primaryColor,
+                        filled: true,
+                        enabledBorder: UnderlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: BorderSide.none,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: BorderSide(color: Colors.teal),
+                        ),
+                        hintText: 'Max Fees',
+                        prefixIcon: Icon(
+                          Icons.money,
+                          size: 20,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      ),
+                      autofocus: true,
+                      keyboardType: TextInputType.number,
                     ),
-                    decoration: InputDecoration(
-                      labelStyle: TextStyle(color: Colors.teal),
-                      focusColor: Theme.of(context).primaryColor,
-                      filled: true,
-                      enabledBorder: UnderlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
-                        borderSide: BorderSide.none,
+                    //language dropdown
+                    Container(
+                      width: double.infinity,
+                      margin: EdgeInsets.all(16),
+                      child: DropdownButton<String>(
+                        dropdownColor: Colors.teal[50],
+                        value: _selectedLanguage,
+                        hint: Row(
+                          children: [
+                            (_selectedLanguage != null)
+                                ? Text('$_selectedLanguage')
+                                : Text('Main Language:'),
+                          ],
+                        ),
+                        isDense: true,
+                        focusColor: Colors.teal[300],
+                        items: <String>[
+                          'Any',
+                          'Arabic',
+                          'French',
+                          'English',
+                          'German'
+                        ].map((String value) {
+                          return new DropdownMenuItem<String>(
+                            value: value,
+                            child: new Text(value),
+                          );
+                        }).toList(),
+                        onChanged: (chosen) {
+                          setState(() {
+                            _selectedLanguage = chosen;
+                          });
+                        },
                       ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
-                        borderSide: BorderSide(color: Colors.teal),
+                    ),
+                    //address testfield
+                    TextField(
+                      keyboardType: TextInputType.streetAddress,
+                      controller: addressController,
+                      cursorColor: Theme.of(context).primaryColor,
+                      style: TextStyle(
+                        color: Theme.of(context).primaryColor,
+                        fontSize: 14.0,
                       ),
-                      hintText: 'Max Fees',
-                      prefixIcon: Icon(
-                        Icons.money,
-                        size: 20,
+                      decoration: InputDecoration(
+                        labelStyle: TextStyle(color: Colors.teal),
+                        focusColor: Theme.of(context).primaryColor,
+                        filled: true,
+                        enabledBorder: UnderlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: BorderSide.none,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: BorderSide(color: Colors.teal),
+                        ),
+                        hintText: 'Address',
+                        prefixIcon: Icon(
+                          Icons.location_on,
+                          size: 20,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      ),
+                      autofocus: true,
+                    ),
+                    //certificate dropdown
+                    Container(
+                      width: double.infinity,
+                      margin: EdgeInsets.all(16),
+                      child: DropdownButton<String>(
+                        dropdownColor: Colors.teal[50],
+                        value: _selectedCertificate,
+                        hint: Row(
+                          children: [
+                            (_selectedCertificate != null)
+                                ? Text('$_selectedCertificate')
+                                : Text('Certificate:'),
+                          ],
+                        ),
+                        isDense: true,
+                        focusColor: Colors.teal[300],
+                        items: <String>['Any', 'National', 'IGCSE', 'SAT', 'IB']
+                            .map((String value) {
+                          return new DropdownMenuItem<String>(
+                            value: value,
+                            child: new Text(value),
+                          );
+                        }).toList(),
+                        onChanged: (chosen) {
+                          setState(() {
+                            _selectedCertificate = chosen;
+                          });
+                        },
+                      ),
+                    ),
+                    //stage dropdown
+                    Container(
+                      width: double.infinity,
+                      margin: EdgeInsets.all(16),
+                      child: DropdownButton<String>(
+                        dropdownColor: Colors.teal[50],
+                        value: _selectedStage,
+                        hint: Row(
+                          children: [
+                            (_selectedStage != null)
+                                ? Text('$_selectedStage')
+                                : Text('Stage:'),
+                          ],
+                        ),
+                        isDense: true,
+                        focusColor: Colors.teal[300],
+                        items: <String>[
+                          'Any',
+                          'nursery',
+                          'KG',
+                          'Primary',
+                          'Secondary'
+                        ].map((String value) {
+                          return new DropdownMenuItem<String>(
+                            value: value,
+                            child: new Text(value),
+                          );
+                        }).toList(),
+                        onChanged: (chosen) {
+                          setState(() {
+                            _selectedStage = chosen;
+                          });
+                        },
+                      ),
+                    ),
+                    Container(
+                      width: double.infinity,
+                      margin: EdgeInsets.all(16),
+                      child: RaisedButton(
+                        onPressed: isFiltering
+                            ? null
+                            : () {
+                                filterSchools();
+                              },
+                        child: Text(isFiltering ? 'Filtering..' : 'Filter',
+                            style: TextStyle(
+                              color: Colors.white,
+                            )),
                         color: Theme.of(context).primaryColor,
                       ),
                     ),
-                    autofocus: false,
-                  ),
-                  //language dropdown
-                  //address testfield
-                  TextField(
-                    controller: maxFeesController,
-                    cursorColor: Theme.of(context).primaryColor,
-                    style: TextStyle(
-                      color: Theme.of(context).primaryColor,
-                      fontSize: 14.0,
-                    ),
-                    decoration: InputDecoration(
-                      labelStyle: TextStyle(color: Colors.teal),
-                      focusColor: Theme.of(context).primaryColor,
-                      filled: true,
-                      enabledBorder: UnderlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25),
-                        borderSide: BorderSide(color: Colors.teal),
-                      ),
-                      hintText: 'Address',
-                      prefixIcon: Icon(
-                        Icons.location_on,
-                        size: 20,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                    ),
-                    autofocus: false,
-                  ),
-                  //certificate dropdown
-                  //stage dropdown
-                ],
+                  ],
+                ),
               ),
             ),
           );
@@ -307,13 +491,13 @@ class _SchoolsListViewState extends State<SchoolsListView> {
   }
 
   Future<List<String>> getSchools() async {
+    List<String> schoolNames = <String>[];
     final data = {
       'name': widget.query,
     };
     final headers = {
       'APP_KEY': getAppKey(),
     };
-    List<String> schoolNames = <String>[];
     await http
         .post(
       "$domain/api/schools/search",
