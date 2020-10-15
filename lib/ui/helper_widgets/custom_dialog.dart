@@ -3,15 +3,15 @@ import 'package:page_transition/page_transition.dart';
 import 'package:school_finder_app/ui/pages/home_pages/home_page.dart';
 
 navigateHomePage(context) {
-  Navigator.of(context).pushAndRemoveUntil(
-      PageTransition(
-        type: PageTransitionType.scale,
-        alignment: Alignment.bottomCenter,
-        child: HomePage(),
-        inheritTheme: true,
-        ctx: context,
-      ),
-      (Route<dynamic> route) => false);
+  Navigator.of(context).push(
+    PageTransition(
+      type: PageTransitionType.scale,
+      alignment: Alignment.bottomCenter,
+      child: HomePage(),
+      inheritTheme: true,
+      ctx: context,
+    ),
+  );
 }
 
 customDialog(title, context, content, onPress) {

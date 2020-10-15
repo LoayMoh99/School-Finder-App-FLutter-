@@ -14,6 +14,8 @@ class AddSchoolSuggestionPage extends StatefulWidget {
 }
 
 class _AddSchoolSuggestionPageState extends State<AddSchoolSuggestionPage> {
+  String _selectedLanguage, _selectedCertificate, _selectedStage;
+
   @override
   void initState() {
     super.initState();
@@ -38,70 +40,161 @@ class _AddSchoolSuggestionPageState extends State<AddSchoolSuggestionPage> {
                 child: Container(
                   child: Column(
                     children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TextFieldWidget(
-                          autoFocus: false,
-                          hintText: 'Name',
-                          obscureText: false,
-                          prefixIconData: Icons.school,
-                        ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: TextFieldWidget(
+                              keyboardType: TextInputType.name,
+                              autoFocus: false,
+                              hintText: 'Name',
+                              obscureText: false,
+                              prefixIconData: Icons.school,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 8.0),
+                            child: Text(
+                                (_role != null && _role == 'app_admin')
+                                    ? '*All is required'
+                                    : '*Name is required',
+                                style: TextStyle(
+                                  color: Colors.red,
+                                )),
+                          ),
+                        ],
                       ),
-                      Text('*required'),
+                      SizedBox(height: 10),
                       Column(
                         children: <Widget>[
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: TextFieldWidget(
                               autoFocus: false,
-                              hintText: 'Name',
+                              keyboardType: TextInputType.phone,
+                              hintText: 'Phone Number',
                               obscureText: false,
-                              prefixIconData: Icons.school,
+                              prefixIconData: Icons.phone,
                             ),
                           ),
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: TextFieldWidget(
+                              keyboardType: TextInputType.number,
                               autoFocus: false,
-                              hintText: 'Name',
+                              hintText: 'Average Annual Fees',
                               obscureText: false,
-                              prefixIconData: Icons.school,
+                              prefixIconData: Icons.money,
                             ),
                           ),
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: TextFieldWidget(
+                              keyboardType: TextInputType.streetAddress,
                               autoFocus: false,
-                              hintText: 'Name',
+                              hintText: 'Address',
                               obscureText: false,
-                              prefixIconData: Icons.school,
+                              prefixIconData: Icons.location_on,
                             ),
                           ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: TextFieldWidget(
-                              autoFocus: false,
-                              hintText: 'Name',
-                              obscureText: false,
-                              prefixIconData: Icons.school,
+                          //language dropdown
+                          Container(
+                            width: double.infinity,
+                            margin: EdgeInsets.all(16),
+                            child: DropdownButton<String>(
+                              dropdownColor: Colors.teal[50],
+                              value: _selectedLanguage,
+                              hint: Row(
+                                children: [
+                                  (_selectedLanguage != null)
+                                      ? Text('$_selectedLanguage')
+                                      : Text('Main Language:'),
+                                ],
+                              ),
+                              isDense: true,
+                              focusColor: Colors.teal[300],
+                              items: <String>[
+                                'Arabic',
+                                'French',
+                                'English',
+                                'German'
+                              ].map((String value) {
+                                return new DropdownMenuItem<String>(
+                                  value: value,
+                                  child: new Text(value),
+                                );
+                              }).toList(),
+                              onChanged: (chosen) {
+                                setState(() {
+                                  _selectedLanguage = chosen;
+                                });
+                              },
                             ),
                           ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: TextFieldWidget(
-                              autoFocus: false,
-                              hintText: 'Name',
-                              obscureText: false,
-                              prefixIconData: Icons.school,
+
+                          //certificate dropdown
+                          Container(
+                            width: double.infinity,
+                            margin: EdgeInsets.all(16),
+                            child: DropdownButton<String>(
+                              dropdownColor: Colors.teal[50],
+                              value: _selectedCertificate,
+                              hint: Row(
+                                children: [
+                                  (_selectedCertificate != null)
+                                      ? Text('$_selectedCertificate')
+                                      : Text('Certificate:'),
+                                ],
+                              ),
+                              isDense: true,
+                              focusColor: Colors.teal[300],
+                              items: <String>['National', 'IGCSE', 'SAT', 'IB']
+                                  .map((String value) {
+                                return new DropdownMenuItem<String>(
+                                  value: value,
+                                  child: new Text(value),
+                                );
+                              }).toList(),
+                              onChanged: (chosen) {
+                                setState(() {
+                                  _selectedCertificate = chosen;
+                                });
+                              },
                             ),
                           ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: TextFieldWidget(
-                              autoFocus: false,
-                              hintText: 'Name',
-                              obscureText: false,
-                              prefixIconData: Icons.school,
+                          //stage dropdown
+                          Container(
+                            width: double.infinity,
+                            margin: EdgeInsets.all(16),
+                            child: DropdownButton<String>(
+                              dropdownColor: Colors.teal[50],
+                              value: _selectedStage,
+                              hint: Row(
+                                children: [
+                                  (_selectedStage != null)
+                                      ? Text('$_selectedStage')
+                                      : Text('Stage:'),
+                                ],
+                              ),
+                              isDense: true,
+                              focusColor: Colors.teal[300],
+                              items: <String>[
+                                'nursery',
+                                'KG',
+                                'Primary',
+                                'Secondary'
+                              ].map((String value) {
+                                return new DropdownMenuItem<String>(
+                                  value: value,
+                                  child: new Text(value),
+                                );
+                              }).toList(),
+                              onChanged: (chosen) {
+                                setState(() {
+                                  _selectedStage = chosen;
+                                });
+                              },
                             ),
                           ),
                         ],
